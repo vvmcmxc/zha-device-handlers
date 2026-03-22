@@ -1,0 +1,43 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.1, pytest-9.0.2, pluggy-1.6.0 -- /workspaces/zha-device-handlers/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /workspaces/zha-device-handlers
+configfile: pyproject.toml
+plugins: timeout-2.4.0, cov-7.0.0, asyncio-1.3.0, sugar-1.1.1, time-machine-2.19.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 23 items
+
+tests/test_motion_agl8.py::test_fp300_device_creation PASSED             [  4%]
+tests/test_motion_agl8.py::test_fp300_clusters_present PASSED            [  8%]
+tests/test_motion_agl8.py::test_fp300_power_configuration PASSED         [ 13%]
+tests/test_motion_agl8.py::test_fp300_detection_range_unpacking PASSED   [ 17%]
+tests/test_motion_agl8.py::test_fp300_detection_range_partial_zones PASSED [ 21%]
+tests/test_motion_agl8.py::test_fp300_led_schedule_unpacking PASSED      [ 26%]
+tests/test_motion_agl8.py::test_fp300_manu_cluster_presence_attribute PASSED [ 30%]
+tests/test_motion_agl8.py::test_fp300_manu_cluster_enum_attributes PASSED [ 34%]
+tests/test_motion_agl8.py::test_fp300_manu_cluster_bind PASSED           [ 39%]
+tests/test_motion_agl8.py::test_fp300_enum_values PASSED                 [ 43%]
+tests/test_motion_agl8.py::test_fp300_detection_range_write_attributes PASSED [ 47%]
+tests/test_motion_agl8.py::test_fp300_led_schedule_write_attributes PASSED [ 52%]
+tests/test_motion_agl8.py::test_fp300_detection_range_unpack_mask PASSED [ 56%]
+tests/test_motion_agl8.py::test_fp300_detection_range_invalid_length PASSED [ 60%]
+tests/test_motion_agl8.py::test_fp300_led_schedule_default_fallback PASSED [ 65%]
+tests/test_motion_agl8.py::test_fp300_power_configuration_battery_voltage PASSED [ 69%]
+tests/test_motion_agl8.py::test_fp300_detection_range_shift_by_id PASSED [ 73%]
+tests/test_motion_agl8.py::test_fp300_power_battery_reported PASSED      [ 78%]
+tests/test_motion_agl8.py::test_fp300_power_battery_percent_reported PASSED [ 82%]
+tests/test_motion_agl8.py::test_fp300_manu_cluster_bind_with_error PASSED [ 86%]
+tests/test_motion_agl8.py::test_fp300_led_schedule_write_both_params PASSED [ 91%]
+tests/test_motion_agl8.py::test_fp300_led_schedule_write_no_current PASSED [ 95%]
+tests/test_motion_agl8.py::test_fp300_manu_cluster_parse_aqara_attributes PASSED [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.1-final-0 ________________
+
+Name                                    Stmts   Miss  Cover
+-----------------------------------------------------------
+zhaquirks/xiaomi/aqara/motion_agl8.py     172      0   100%
+-----------------------------------------------------------
+TOTAL                                     172      0   100%
+Coverage HTML written to dir htmlcov
+============================= 23 passed in 13.53s ==============================

@@ -1,7 +1,7 @@
 """Quirk for Aqara Presence Multi-Sensor FP300 lumi.sensor_occupy.agl8."""
 
+# ruff: noqa: D101, D102, D106, D107
 import asyncio
-
 from typing import Any, Final
 
 from zigpy import types as t
@@ -9,23 +9,20 @@ from zigpy.quirks.v2 import QuirkBuilder, ReportingConfig
 from zigpy.quirks.v2.homeassistant import (
     PERCENTAGE,
     EntityType,
+    UnitOfElectricPotential,
     UnitOfLength,
     UnitOfTemperature,
     UnitOfTime,
-    UnitOfElectricPotential,
 )
 from zigpy.quirks.v2.homeassistant.binary_sensor import BinarySensorDeviceClass
 from zigpy.quirks.v2.homeassistant.number import NumberDeviceClass
 from zigpy.quirks.v2.homeassistant.sensor import SensorDeviceClass, SensorStateClass
-
 from zigpy.typing import UNDEFINED, UndefinedType
-
 from zigpy.zcl import foundation
 from zigpy.zcl.foundation import BaseAttributeDefs, DataTypeId, ZCLAttributeDef
 
 from zhaquirks import LocalDataCluster
 from zhaquirks.xiaomi import (
-    BATTERY_PERCENTAGE_REMAINING_ATTRIBUTE,
     BATTERY_VOLTAGE_MV,
     XiaomiAqaraE1Cluster,
     XiaomiPowerConfiguration,
@@ -33,7 +30,7 @@ from zhaquirks.xiaomi import (
 
 AQARA_MFG_CODE: Final = 0x115F
 FP300_ATTR_BATTERY_VOLTAGE: Final = "0xff01-23"
-FP300_ATTR_BATTERY_PERCENT: Final = "0xff01-24"    # unused, keep for future
+FP300_ATTR_BATTERY_PERCENT: Final = "0xff01-24"  # unused, keep for future
 
 
 class PresenceSensitivity(t.enum8):
@@ -64,7 +61,7 @@ class ReportMode(t.enum8):
 
 class FP300PowerConfiguration(XiaomiPowerConfiguration):
     """Battery level based on voltage."""
-    
+
     MIN_VOLTS_MV = 2800
     MAX_VOLTS_MV = 3000
 
@@ -74,17 +71,17 @@ class FP300PowerConfiguration(XiaomiPowerConfiguration):
         self._update_battery_percentage(voltage_mv)
 
     def battery_percent_reported(self, battery_percent: int) -> None:
-        # Ignore buggy % reports
+        """Ignore buggy percentage reports from device."""
         pass
 
 
 class AqaraFP300ManuCluster(XiaomiAqaraE1Cluster):
     """Aqara FP300 manufacturer cluster."""
+
     cluster_id = 0xFCC0
     ep_attribute = "aqara_fp300_manu"
 
     class AttributeDefs(XiaomiAqaraE1Cluster.AttributeDefs):
-
         # Presence / PIR
         presence: Final = ZCLAttributeDef(
             id=0x0142,
@@ -280,12 +277,12 @@ class AqaraFP300ManuCluster(XiaomiAqaraE1Cluster):
 
     def _update_attribute(self, attrid: int, value: Any) -> None:
         super()._update_attribute(attrid, value)
-    
+
         if attrid == self.AttributeDefs.detection_range_raw.id:
             self.endpoint.fp300_detection_range.apply_raw(value)
         elif attrid == self.AttributeDefs.led_schedule_time_raw.id:
             self.endpoint.fp300_led_schedule.apply_raw(value)
-    
+
     async def bind(self):
         result = await super().bind()
 
@@ -302,15 +299,15 @@ class AqaraFP300ManuCluster(XiaomiAqaraE1Cluster):
                 )
             except Exception as exc:
                 self.debug("Failed to read attr 0x%04X: %r", attr_id, exc)
-    
+
         return result
-    
+
     def _parse_aqara_attributes(self, value: Any) -> dict[str, Any]:
         attributes = super()._parse_aqara_attributes(value)
-    
+
         if FP300_ATTR_BATTERY_VOLTAGE in attributes:
             attributes[BATTERY_VOLTAGE_MV] = attributes.pop(FP300_ATTR_BATTERY_VOLTAGE)
-    
+
         return attributes
 
 
@@ -387,7 +384,7 @@ class FP300DetectionRangeCluster(LocalDataCluster):
         if len(raw) != 5:
             self.debug("Invalid detection_range_raw length: %d", len(raw))
             return
-    
+
         mask = self._unpack_mask(raw)
         for attr_id, shift in self.RANGE_MAP:
             self._update_attribute(attr_id, bool(mask & (self.ZONE_MASK << shift)))
@@ -398,7 +395,6 @@ class FP300DetectionRangeCluster(LocalDataCluster):
         manufacturer: int | UndefinedType | None = UNDEFINED,
         **kwargs,
     ) -> list[list[foundation.WriteAttributesStatusRecord]]:
-
         async with self._write_mutex:
             resolved = {
                 self.find_attribute(attr).id: value
@@ -412,10 +408,10 @@ class FP300DetectionRangeCluster(LocalDataCluster):
                 raw = bytes(raw)
                 if len(raw) == 5:
                     mask = self._unpack_mask(raw)
-                    
+
             for attr_id, value in resolved.items():
                 shift = self._SHIFT_BY_ID[attr_id]
-                    
+
                 mask &= ~(self.ZONE_MASK << shift)
                 if value:
                     mask |= self.ZONE_MASK << shift
@@ -434,7 +430,7 @@ class FP300LedScheduleCluster(LocalDataCluster):
 
     cluster_id = 0xFCF1
     ep_attribute = "fp300_led_schedule"
-    
+
     #  Fallback when cache is empty before first successful read (21:00 to 09:00)
     DEFAULT_SCHEDULE: Final = 0x00090015
     # Raw attr on ManuCluster
@@ -470,25 +466,24 @@ class FP300LedScheduleCluster(LocalDataCluster):
         manufacturer: int | UndefinedType | None = UNDEFINED,
         **kwargs,
     ) -> list[list[foundation.WriteAttributesStatusRecord]]:
-        
         async with self._write_mutex:
             manu = self.endpoint.aqara_fp300_manu
-    
+
             current = manu.get(self.RAW_ATTR)
             if current is None:
                 current = self.DEFAULT_SCHEDULE
             start = current & 0xFF
             end = (current >> 16) & 0xFF
-    
+
             for attr, value in attributes.items():
                 attr_id = self.find_attribute(attr).id
                 if attr_id == self.AttributeDefs.led_off_schedule_start_hour.id:
                     start = int(value)
                 elif attr_id == self.AttributeDefs.led_off_schedule_end_hour.id:
                     end = int(value)
-    
+
             new_raw = start | (end << 16)
-    
+
             return await manu.write_attributes(
                 {self.RAW_ATTR: new_raw},
                 manufacturer=AQARA_MFG_CODE,
@@ -503,7 +498,6 @@ class FP300LedScheduleCluster(LocalDataCluster):
     .replaces(FP300PowerConfiguration)
     .adds(FP300DetectionRangeCluster)
     .adds(FP300LedScheduleCluster)
-    
     # Presence / PIR
     .binary_sensor(
         attribute_name=AqaraFP300ManuCluster.AttributeDefs.presence.name,
@@ -558,7 +552,6 @@ class FP300LedScheduleCluster(LocalDataCluster):
         translation_key="pir_detection_interval",
         fallback_name="PIR detection interval",
     )
-
     # AI
     .switch(
         attribute_name=AqaraFP300ManuCluster.AttributeDefs.ai_interference_identification.name,
@@ -574,7 +567,6 @@ class FP300LedScheduleCluster(LocalDataCluster):
         translation_key="ai_sensitivity_adaptive",
         fallback_name="AI adaptive sensitivity",
     )
-
     # Illuminance
     .number(
         attribute_name=AqaraFP300ManuCluster.AttributeDefs.light_reporting_threshold.name,
@@ -634,7 +626,6 @@ class FP300LedScheduleCluster(LocalDataCluster):
         translation_key="light_reporting_interval",
         fallback_name="Light reporting interval",
     )
-
     # Temperature / humidity
     .enum(
         attribute_name=AqaraFP300ManuCluster.AttributeDefs.humidity_reporting_mode.name,
@@ -732,7 +723,6 @@ class FP300LedScheduleCluster(LocalDataCluster):
         translation_key="temp_reporting_mode",
         fallback_name="Temperature reporting mode",
     )
-
     # LED
     .number(
         attribute_name=FP300LedScheduleCluster.AttributeDefs.led_off_schedule_start_hour.name,
@@ -766,7 +756,6 @@ class FP300LedScheduleCluster(LocalDataCluster):
         translation_key="led_off_schedule",
         fallback_name="LED off schedule",
     )
-
     # Buttons
     .write_attr_button(
         attribute_name=AqaraFP300ManuCluster.AttributeDefs.spatial_learning.name,
@@ -785,7 +774,6 @@ class FP300LedScheduleCluster(LocalDataCluster):
         translation_key="restart_device",
         fallback_name="Restart device",
     )
-
     # Diagnostic
     .sensor(
         attribute_name=AqaraFP300ManuCluster.AttributeDefs.target_distance.name,
@@ -831,7 +819,6 @@ class FP300LedScheduleCluster(LocalDataCluster):
         translation_key="battery_voltage",
         fallback_name="Battery voltage",
     )
-
     # Detection range
     .switch(
         attribute_name=FP300DetectionRangeCluster.AttributeDefs.range_0_1m.name,
