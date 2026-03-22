@@ -1,2 +1,33 @@
-......................                                                   [100%]
-22 passed in 1.52s
+============================= test session starts ==============================
+platform linux -- Python 3.12.1, pytest-9.0.2, pluggy-1.6.0 -- /workspaces/zha-device-handlers/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /workspaces/zha-device-handlers
+configfile: pyproject.toml
+plugins: timeout-2.4.0, cov-7.0.0, asyncio-1.3.0, time-machine-2.19.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 22 items
+
+tests/test_motion_agl8_slider.py::test_fp300_detection_slider_apply_raw PASSED [  4%]
+tests/test_motion_agl8_slider.py::test_fp300_detection_slider_invalid_raw PASSED [  9%]
+tests/test_motion_agl8_slider.py::test_fp300_detection_slider_apply_raw_zero_mask PASSED [ 13%]
+tests/test_motion_agl8_slider.py::test_fp300_detection_slider_write_attributes PASSED [ 18%]
+tests/test_motion_agl8_slider.py::test_fp300_detection_slider_write_attributes_clamps_high PASSED [ 22%]
+tests/test_motion_agl8_slider.py::test_fp300_detection_slider_write_attributes_clamps_low PASSED [ 27%]
+tests/test_motion_agl8_slider.py::test_fp300_led_schedule_apply_raw PASSED [ 31%]
+tests/test_motion_agl8_slider.py::test_fp300_led_schedule_write_with_default_fallback PASSED [ 36%]
+tests/test_motion_agl8_slider.py::test_fp300_led_schedule_write_preserves_other_side PASSED [ 40%]
+tests/test_motion_agl8_slider.py::test_fp300_led_schedule_write_updates_both_boundaries PASSED [ 45%]
+tests/test_motion_agl8_slider.py::test_fp300_manu_cluster_forwards_raw_updates PASSED [ 50%]
+tests/test_motion_agl8_slider.py::test_fp300_manu_cluster_ignores_unrelated_attr_for_virtuals PASSED [ 54%]
+tests/test_motion_agl8_slider.py::test_fp300_manu_parse_aqara_attributes_maps_battery_voltage PASSED [ 59%]
+tests/test_motion_agl8_slider.py::test_fp300_manu_parse_aqara_attributes_without_battery_voltage PASSED [ 63%]
+tests/test_motion_agl8_slider.py::test_fp300_manu_bind_reads_initial_attrs PASSED [ 68%]
+tests/test_motion_agl8_slider.py::test_fp300_manu_bind_continues_on_read_error PASSED [ 72%]
+tests/test_motion_agl8_slider.py::test_fp300_power_cluster_battery_reporting PASSED [ 77%]
+tests/test_motion_agl8_slider.py::test_fp300_power_cluster_voltage_limits_constants PASSED [ 81%]
+tests/test_motion_agl8_slider.py::test_fp300_led_schedule_default_constant PASSED [ 86%]
+tests/test_motion_agl8_slider.py::test_fp300_detection_slider_prefix_constant PASSED [ 90%]
+tests/test_motion_agl8_slider.py::test_fp300_enum_values PASSED          [ 95%]
+tests/test_motion_agl8_slider.py::test_fp300_attribute_key_constants PASSED [100%]
+
+============================== 22 passed in 1.54s ==============================
